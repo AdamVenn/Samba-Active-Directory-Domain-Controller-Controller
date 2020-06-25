@@ -200,6 +200,7 @@ class FrStartup(wx.Frame):
         self.txtPass = wx.StaticText(self.panStartup, label="Password\n(Leave blank if you have passwordless SSH)", style=wx.ALIGN_CENTER_HORIZONTAL)
         self.sizerGrid.Add(self.txtPass, pos=(4, 0), span=(1, 1), flag=wx.ALL | wx.EXPAND, border=5)
         self.entPass = wx.TextCtrl(self.panStartup, value="", style=wx.ALIGN_CENTER_HORIZONTAL)
+        self.entPass.Bind(wx.EVT_CHAR, self.on_key_pass)
         self.sizerGrid.Add(self.entPass, pos=(5, 0), span=(1, 1), flag=wx.ALL | wx.EXPAND, border=5)
         self.chkAuto = wx.CheckBox(self.panStartup, label="Connect automatically\n(if you have passwordless SSH)")
         # self.chkAuto.SetValue(True)
@@ -283,6 +284,20 @@ class FrStartup(wx.Frame):
         if keycode in tupAllowed_keycodes:
             event.Skip()
             return
+
+    def on_key_pass(self, event):
+        """
+        Enter = log in
+        """
+        keycode = event.GetKeyCode()
+        tupEnter_keycodes = (
+            wx.WXK_RETURN,
+            wx.WXK_NUMPAD_ENTER,
+        )
+        if keycode in tupEnter_keycodes:
+            self.on_but_connect()
+        else:
+            event.Skip()
 
     @error_window
     def on_but_connect(self, event=None):
@@ -1022,26 +1037,29 @@ class FrAddUsers(wx.Frame):
         self.sizerGrid.Add(self.txtSurname, pos=(0, 2), span=(1, 1), flag=wx.ALL | wx.EXPAND, border=5)
         self.txtPassword = wx.StaticText(self.panUsers, label="Password", style=wx.ALIGN_CENTER_HORIZONTAL)
         self.sizerGrid.Add(self.txtPassword, pos=(0, 3), span=(1, 1), flag=wx.ALL | wx.EXPAND, border=5)
+        self.txtPw_change = wx.StaticText(self.panUsers, label="Change at login", style=wx.ALIGN_CENTER_HORIZONTAL)
+        self.sizerGrid.Add(self.txtPw_change, pos=(0, 4), span=(1, 1), flag=wx.ALL | wx.EXPAND, border=5)
 
         #Entry boxes
         self.lstEnts = []
         no_of_rows = 10
-        no_of_cols = 4
+        self.no_of_cols = 4  # NB excluding check boxes
         for row in range(0, no_of_rows):
-            self.lstEnts.append([wx.TextCtrl(self.panUsers) for x in range(no_of_cols)])
+            self.lstEnts.append([wx.TextCtrl(self.panUsers) for x in range(self.no_of_cols)])
+            self.lstEnts[row].append(wx.CheckBox(self.panUsers))
             for col, ent in enumerate(self.lstEnts[row]):
                 self.sizerGrid.Add(ent, pos=(row + 1, col), span=(1, 1), flag=wx.ALL | wx.EXPAND, border=5)
 
         # Buttons
         self.butAdd_users = wx.Button(self.panUsers, label="Add users")
         self.butAdd_users.Bind(wx.EVT_BUTTON, self.on_but_add)
-        self.sizerGrid.Add(self.butAdd_users, pos=(row + 2, 0), span=(1, 2), flag=wx.ALL | wx.EXPAND, border=5)
+        self.sizerGrid.Add(self.butAdd_users, pos=(row + 2, 0), span=(1, 3), flag=wx.ALL | wx.EXPAND, border=5)
         self.butCancel = wx.Button(self.panUsers, label="Cancel")
         self.butCancel.Bind(wx.EVT_BUTTON, self.on_but_cancel)
-        self.sizerGrid.Add(self.butCancel, pos=(row + 2, 2), span=(1, 2), flag=wx.ALL | wx.EXPAND, border=5)
+        self.sizerGrid.Add(self.butCancel, pos=(row + 2, 3), span=(1, 2), flag=wx.ALL | wx.EXPAND, border=5)
         self.butImport = wx.Button(self.panUsers, label="Import CSV")
         self.butImport.Bind(wx.EVT_BUTTON, self.on_but_import)
-        self.sizerGrid.Add(self.butImport, pos=(row + 3, 0), span=(1, 4), flag=wx.ALL | wx.EXPAND, border=5)
+        self.sizerGrid.Add(self.butImport, pos=(row + 3, 0), span=(1, 5), flag=wx.ALL | wx.EXPAND, border=5)
 
     @error_window
     def on_but_add(self, event=None):
@@ -1051,7 +1069,8 @@ class FrAddUsers(wx.Frame):
         lstUsers_to_add = []
 
         for row, lst_of_boxes in enumerate(self.lstEnts):
-            lstVals = [box.GetValue() for box in lst_of_boxes]
+            lstVals = [box.GetValue() for box in lst_of_boxes[:self.no_of_cols]]
+            lstVals.append(lst_of_boxes[self.no_of_cols].GetValue())
             if any([x == '' for x in lstVals]):
                 continue
             lstUsers_to_add.append(User())
@@ -1059,6 +1078,7 @@ class FrAddUsers(wx.Frame):
             lstUsers_to_add[row].set_given_name(lstVals[1])
             lstUsers_to_add[row].set_surname(lstVals[2])
             lstUsers_to_add[row].set_password(lstVals[3])
+            lstUsers_to_add[row].set_must_change_at_next_login(lstVals[4])
 
         if not lstUsers_to_add:
             wx.MessageBox("No valid user details found.", "Add Users")

@@ -223,6 +223,7 @@ class User:
         self.flags = []
         # TO DO: Some checking to handle whether OU has 'OU=' at the beginning, or if it is in a sub ou
         self.ou = ''
+        self.must_change_at_next_login = False  # For use when making new users
 
         self.dic_full_info = dic_user
         if self.dic_full_info != {}:
@@ -317,6 +318,11 @@ class User:
                 raise SambaException(f"I'm sorry, having a name with a space at the beginning makes things too hard.")
         # I will let Samba manage maximum lengths and stuff
         self.surname = surname
+
+    def set_must_change_at_next_login(self, must_change_at_next_login: bool):
+        if not isinstance(must_change_at_next_login, bool):
+            raise TypeError("must_change_at_next_login must be either True or False.")
+        self.must_change_at_next_login = must_change_at_next_login
 
     @staticmethod
     def parse_distinguishedName(dn: str) -> list:
@@ -615,10 +621,10 @@ class SshSamba:
         """
         return self.samba_command('computer list')
 
-    def _add_user(self, username, pw, given_name='', surname='', organizational_unit=None):
+    def _add_user(self, username, pw, given_name='', surname='', must_change_at_next_login=True):
         """
         Mimic the command:
-        user create User1 passw0rd --given-name=John --surname=Smith --must-change-at-next-login --userou='OU=OrgUnit'
+        user create User1 passw0rd --given-name=John --surname=Smith --must-change-at-next-login
         Internal use only - please make a user object and use self.add_users instead.
         Silence = success. Exception will be raised if something went wrong
         """
@@ -628,14 +634,11 @@ class SshSamba:
             raise ValueError("Illegal characters found in given name")
         if not all_legal_chars(surname):
             raise ValueError("Illegal characters found in surname")
-        if organizational_unit:
-            if not all_legal_chars(organizational_unit):
-                raise ValueError("Illegal characters found in organizational unit")
 
-        if organizational_unit:
-            self.samba_command(f"user create \"{username}\" \"{pw}\" --given-name=\"{given_name}\" --surname=\"{surname}\" --userou='OU=\"{organizational_unit}\"' --must-change-at-next-login")
-        else:
+        if must_change_at_next_login:
             self.samba_command(f"user create \"{username}\" \"{pw}\" --given-name=\"{given_name}\" --surname=\"{surname}\" --must-change-at-next-login")
+        else:
+            self.samba_command(f"user create \"{username}\" \"{pw}\" --given-name=\"{given_name}\" --surname=\"{surname}\"")
 
     def add_users(self, lstUsers):
         """
@@ -657,7 +660,7 @@ class SshSamba:
                                usr.password,
                                given_name=usr.given_name,
                                surname=usr.surname,
-                               organizational_unit=usr.ou)
+                               must_change_at_next_login=usr.must_change_at_next_login)
             except Exception as e:
                 lstErrors.append(repr(e))
 
