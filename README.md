@@ -14,19 +14,27 @@ A simple graphical interface for using samba-tool to manage your Samba Active Di
 ### Why would you use this?
 If, like me, you made a Linux-based Active Directory domain controller using Samba 4, and need a simple GUI to manage users, groups and the password policy. If you followed the tutorial [here](https://wiki.samba.org/index.php/Setting_up_Samba_as_an_Active_Directory_Domain_Controller), you may well want this program!
 
-### Didn't someone already make this?
-There are [many options](https://www.samba.org/samba/GUI/), but nothing as simple and easy to set up as this, which is aimed at Samba 4 Active Directory domain controllers. I built this for an environment with Mac clients, and it has the advantage of not needing to install anything extra on the Domain Controller. Samba [says to use samba-tool](https://wiki.samba.org/index.php/User_and_Group_management), so I followed their advice.
+### How is this different from all the other options?
+There are [many options](https://www.samba.org/samba/GUI/), but this:
+ - is dead simple
+ - requires no extra set up or install on the server side
+ - is aimed specifically at Samba 4 Active Directory domain controllers
+ - is made for Mac and Linux
+ - works with SSH
+ - uses samba-tool like [Samba tells us to](https://wiki.samba.org/index.php/User_and_Group_management)
+ - will stay up to date with your SSH and Samba packages, and won't stop working when you upgrade PHP.
 
 ### Shouldn't this be a web interface?
-That would be great! There are a couple of Github projects doing this with modern web frameworks. Do try one of those out, but make sure you avoid PHP 5. I made this because I could not find one that worked for me and I have not yet learnt web interfaces.
+There are a couple of nice looking Github projects doing this with modern web frameworks. Do try one of those out,  as long as you don't have to downgrade to PHP 5...
 
 ### Shouldn't this be a Webmin module?
-That would be great! Please make that. I made this because I have not yet learnt Perl or web interfaces.
+That would be great! Please make that. I'm afraid I needed this to work quickly and didn't have time learn how to do that.
 
-### What is is made with?
+### Which packages do I need to build/run it?
  - Python 3.7/3.8
  - wxPython for the GUI
  - Paramiko for the SSH
+ - PyYAML for the preferences file
 
 ### How can I use it?
 Download the source and run it, or build it with Py2app on Mac using the included setup.py.
