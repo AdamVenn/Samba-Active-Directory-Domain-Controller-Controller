@@ -25,8 +25,6 @@ import paramiko
 import re
 from enum import Enum
 from getpass import getpass
-import platform
-import subprocess
 
 # Notes from the Samba help
 """Samba-tool commands:

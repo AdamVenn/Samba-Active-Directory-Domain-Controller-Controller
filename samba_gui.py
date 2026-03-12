@@ -7,7 +7,6 @@ import threading
 
 import wx
 from wx.lib.newevent import NewEvent
-import wx.adv
 
 from ssh_samba import SshSamba
 from ssh_samba import User
