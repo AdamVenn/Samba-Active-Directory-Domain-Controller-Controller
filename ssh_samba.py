@@ -172,7 +172,7 @@ def validate_ip(ip):
     return [0<=int(x)<256 for x in re.split(r'\.',re.match(r'^\d+\.\d+\.\d+\.\d+$',ip).group(0))].count(True)==4
 
 
-def validate_list_of_strings(*user_input) -> (list, list):
+def validate_list_of_strings(*user_input) -> tuple[list, list]:
     """
     Validates user input which should have been a list of strings.
     It's one of my typical validation functions that really tries to accept what the user gives it.
