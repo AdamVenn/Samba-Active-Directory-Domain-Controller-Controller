@@ -178,7 +178,7 @@ def all_legal_chars(s):
 
 
 def validate_ip(ip):
-    return [0<=int(x)<256 for x in re.split('\.',re.match(r'^\d+\.\d+\.\d+\.\d+$',ip).group(0))].count(True)==4
+    return [0<=int(x)<256 for x in re.split(r'\.',re.match(r'^\d+\.\d+\.\d+\.\d+$',ip).group(0))].count(True)==4
 
 
 def validate_list_of_strings(*user_input) -> (list, list):
