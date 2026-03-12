@@ -21,13 +21,6 @@ Abilities so far:
         - list
 """
 
-# TO DO:
-#   - Add sub-group to group
-#   - samba-tool user edit
-#   - Find out restrictions on usernames, passwords, etc. and put in proper validation
-#   - Implement samba-tool user show to bring up detailed user info
-#   - OU management, including samba-tool user move
-
 import paramiko
 import re
 from enum import Enum
