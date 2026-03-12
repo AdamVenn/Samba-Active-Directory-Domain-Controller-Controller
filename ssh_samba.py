@@ -732,7 +732,28 @@ class SshSamba:
         if must_change_at_next_login:
             self.samba_command(f'user setpassword \"{user}\" --newpassword=\"{password}\" --must-change-at-next-login')
         else:
-            self.samba_command(f'user setpassword \"{user}\" --newpassword=\"{password}\"')
+            try:
+                self.samba_command(f'user setpassword \"{user}\" --newpassword=\"{password}\"')
+            except SambaException as e:
+                # Try to parse the exception a little to present a nice error message to the user
+                error_message = None
+                if isinstance(e.args[0], list):
+                    for line in e.args[0]:
+                        if 'the password does not meet the complexity criteria' in line:
+                            error_message = "Please try another password. This one might be too short or might be a known common password. Check the password policy for more information."
+                            break
+                        elif 'ERROR' in line:
+                            error_message = line
+                            break
+
+                    if not error_message:
+                        error_message = '\n'.join(e.args[0])
+                else:
+                    error_message = e.args[0]
+
+                raise SambaException(error_message)
+                
+                
 
     def edit_user(self, user, params):
         # TO DO: this
