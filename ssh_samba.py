@@ -844,7 +844,7 @@ class SshSamba:
         lstPolicy = self.samba_command('domain passwordsettings show')
 
         # Assumes no unexpected colons...
-        policy_info = [line.split(':') for line in lstPolicy if line != '' and 'Password informations for domain' not in line]
+        policy_info = [line.split(':') for line in lstPolicy if line != '' and 'Password information for domain' not in line]
         for line in policy_info:
             dicPolicy[line[0].rstrip(' ')] = line[1].lstrip(' ')
 
